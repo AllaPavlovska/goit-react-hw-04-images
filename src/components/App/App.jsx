@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import { fetchImages } from '../Api/Api';
 import Searchbar from '../Searchbar/Searchbar';
 import ImageGallery from '../ImageGallery/ImageGallery';
 import Button from '../Button/Button';
 import Loader from '../Loader/Loader';
 import Modal from '../Modal/Modal';
 import './App.module.css';
-
-const API_KEY = '40576419-28b6c5efeaf1f3d7724b485b7';
 
 export class App extends Component {
   state = {
@@ -17,6 +15,7 @@ export class App extends Component {
     isLoading: false,
     showModal: false,
     largeImageURL: '',
+    showLoadMore: true,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -30,11 +29,12 @@ export class App extends Component {
 
     this.setState({ isLoading: true });
 
-    axios
-      .get(
-        `https://pixabay.com/api/?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
-      )
+    fetchImages(query, page)
       .then(response => {
+        if (response.data.hits.length === 0 || response.data.hits.length < 12) {
+          this.setState({ showLoadMore: false });
+        }
+
         this.setState(prevState => ({
           images: [...prevState.images, ...response.data.hits],
           page: prevState.page + 1,
@@ -45,7 +45,7 @@ export class App extends Component {
   };
 
   handleSearchSubmit = query => {
-    this.setState({ query, page: 1, images: [] });
+    this.setState({ query, page: 1, images: [], showLoadMore: true });
   };
 
   handleLoadMore = () => {
@@ -61,7 +61,8 @@ export class App extends Component {
   };
 
   render() {
-    const { images, isLoading, showModal, largeImageURL } = this.state;
+    const { images, isLoading, showModal, largeImageURL, showLoadMore } =
+      this.state;
 
     return (
       <div className="App">
@@ -70,7 +71,7 @@ export class App extends Component {
           <ImageGallery images={images} onImageClick={this.handleImageClick} />
         )}
         {isLoading && <Loader />}
-        {images.length > 0 && !isLoading && (
+        {showLoadMore && images.length > 0 && !isLoading && (
           <Button onClick={this.handleLoadMore} />
         )}
         {showModal && (
