@@ -16,16 +16,22 @@ export class App extends Component {
     showModal: false,
     largeImageURL: '',
     showLoadMore: true,
+    loadedPages: [],
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.page !== prevState.page || this.state.query !== prevState.query) {
+    if (
+      this.state.page !== prevState.page ||
+      this.state.query !== prevState.query
+    ) {
       this.fetchImages();
     }
   }
 
   fetchImages = () => {
-    const { query, page } = this.state;
+    const { query, page,} = this.state;
+
+  
 
     this.setState({ isLoading: true });
 
@@ -37,34 +43,25 @@ export class App extends Component {
         }
 
         const { hits, totalHits } = response.data;
-        const uniqueImages = this.removeDuplicates([...this.state.images, ...hits], 'id');
 
         this.setState(prev => ({
-          images: uniqueImages,
-          showLoadMore: prev.page < Math.ceil(totalHits / 12),
+          images: [...prev.images, ...hits],
+          showLoadMore: page < Math.ceil(totalHits / 12),
         }));
       })
       .catch(error => console.error('Error fetching images:', error))
       .finally(() => this.setState({ isLoading: false }));
   };
 
-  removeDuplicates = (array, key) => {
-    return array.filter((item, index, self) =>
-      index === self.findIndex(t => t[key] === item[key])
-    );
-  };
-
   handleSearchSubmit = query => {
-    this.setState({ query, page: 1, images: [], showLoadMore: true });
+    this.setState({ query, page: 1, images: [], showLoadMore: true, loadedPages: [] });
   };
 
   handleLoadMore = () => {
     this.setState(prevState => ({
       page: prevState.page + 1,
-    }), () => {
-      this.fetchImages();
-    });
-  };
+    }),
+  )};
 
   handleImageClick = largeImageURL => {
     this.setState({ showModal: true, largeImageURL });
@@ -75,7 +72,8 @@ export class App extends Component {
   };
 
   render() {
-    const { images, isLoading, showModal, largeImageURL, showLoadMore } = this.state;
+    const { images, isLoading, showModal, largeImageURL, showLoadMore } =
+      this.state;
 
     return (
       <div className="App">
@@ -88,10 +86,7 @@ export class App extends Component {
           <Button onClick={this.handleLoadMore} />
         )}
         {showModal && (
-          <Modal
-            largeImageURL={largeImageURL}
-            onClose={this.handleCloseModal}
-          />
+          <Modal largeImageURL={largeImageURL} onClose={this.handleCloseModal} />
         )}
       </div>
     );
