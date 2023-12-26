@@ -19,7 +19,7 @@ export class App extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.query !== this.state.query) {
+    if (this.state.page !== prevState.page || this.state.query !== prevState.query) {
       this.fetchImages();
     }
   }
@@ -31,17 +31,27 @@ export class App extends Component {
 
     fetchImages(query, page)
       .then(response => {
-        if (response.data.hits.length === 0 || response.data.hits.length < 12) {
+        if (response.data.hits.length === 0) {
           this.setState({ showLoadMore: false });
+          return;
         }
 
-        this.setState(prevState => ({
-          images: [...prevState.images, ...response.data.hits],
-          page: prevState.page + 1,
+        const { hits, totalHits } = response.data;
+        const uniqueImages = this.removeDuplicates([...this.state.images, ...hits], 'id');
+
+        this.setState(prev => ({
+          images: uniqueImages,
+          showLoadMore: prev.page < Math.ceil(totalHits / 12),
         }));
       })
       .catch(error => console.error('Error fetching images:', error))
       .finally(() => this.setState({ isLoading: false }));
+  };
+
+  removeDuplicates = (array, key) => {
+    return array.filter((item, index, self) =>
+      index === self.findIndex(t => t[key] === item[key])
+    );
   };
 
   handleSearchSubmit = query => {
@@ -49,7 +59,11 @@ export class App extends Component {
   };
 
   handleLoadMore = () => {
-    this.fetchImages();
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }), () => {
+      this.fetchImages();
+    });
   };
 
   handleImageClick = largeImageURL => {
@@ -61,8 +75,7 @@ export class App extends Component {
   };
 
   render() {
-    const { images, isLoading, showModal, largeImageURL, showLoadMore } =
-      this.state;
+    const { images, isLoading, showModal, largeImageURL, showLoadMore } = this.state;
 
     return (
       <div className="App">

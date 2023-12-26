@@ -1,7 +1,6 @@
-import React from 'react';
 import css from './ImageGalleryItem.module.css';
 
-const ImageGalleryItem = ({ image, onClick }) => (
+export const ImageGalleryItem = ({ image, onClick }) => (
   <li
     className={css.imageGalleryItem}
     onClick={() => onClick(image.largeImageURL)}
