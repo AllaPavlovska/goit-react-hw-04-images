@@ -1,15 +1,12 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import css from './Modal.module.css';
 
 const Modal = ({ largeImageURL, onClose }) => {
-  const handleKeyPress = useCallback(
-    (e) => {
-      if (e.code === 'Escape') {
-        onClose();
-      }
-    },
-    [onClose]
-  );
+  const handleKeyPress = (e) => {
+    if (e.code === 'Escape') {
+      onClose();
+    }
+  };
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -23,7 +20,7 @@ const Modal = ({ largeImageURL, onClose }) => {
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [handleKeyPress]);
+  }, [onClose]);
 
   return (
     <div className={css.overlay} onClick={handleOverlayClick}>
@@ -35,6 +32,7 @@ const Modal = ({ largeImageURL, onClose }) => {
 };
 
 export default Modal;
+
 
 
 
