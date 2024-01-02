@@ -18,8 +18,6 @@ export const App = () => {
 
   useEffect(() => {
     if (query.length === 0) {
-      setImages([]);
-      setShowLoadMore(false);
       return;
     }
 
