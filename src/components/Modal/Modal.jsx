@@ -15,10 +15,14 @@ const Modal = ({ largeImageURL, onClose }) => {
   };
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyPress);
+    const handleKeyPressInEffect = (e) => {
+      handleKeyPress(e);
+    };
+
+    window.addEventListener('keydown', handleKeyPressInEffect);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyPress);
+      window.removeEventListener('keydown', handleKeyPressInEffect);
     };
   }, [onClose, handleKeyPress]);
 
@@ -32,3 +36,4 @@ const Modal = ({ largeImageURL, onClose }) => {
 };
 
 export default Modal;
+
