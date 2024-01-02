@@ -2,11 +2,7 @@ import React, { useEffect } from 'react';
 import css from './Modal.module.css';
 
 const Modal = ({ largeImageURL, onClose }) => {
-  const handleKeyPress = (e) => {
-    if (e.code === 'Escape') {
-      onClose();
-    }
-  };
+ 
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -15,16 +11,19 @@ const Modal = ({ largeImageURL, onClose }) => {
   };
 
   useEffect(() => {
-    const handleKeyPressInEffect = (e) => {
-      handleKeyPress(e);
-    };
+     const handleKeyPress = (e) => {
+    if (e.code === 'Escape') {
+      onClose();
+    }
+  };
 
-    window.addEventListener('keydown', handleKeyPressInEffect);
+
+    window.addEventListener('keydown', handleKeyPress);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyPressInEffect);
+      window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [onClose, handleKeyPress]);
+  }, [onClose]);
 
   return (
     <div className={css.overlay} onClick={handleOverlayClick}>
